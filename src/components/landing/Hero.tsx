@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
@@ -13,7 +14,6 @@ export const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
-  // Single effect to trigger entrance animation after mount
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), prefersReducedMotion ? 0 : 100);
     return () => clearTimeout(timer);
@@ -70,12 +70,16 @@ export const Hero = () => {
             Find it faster. Return it easier. Keep campus connected.
           </Text>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button size="lg" className="w-full sm:w-auto">
-              Report an Item
-            </Button>
-            <Button variant="ghost" size="lg" className="w-full sm:w-auto">
-              Browse Lost & Found
-            </Button>
+            <Link to="/report-lost">
+              <Button size="lg" className="w-full sm:w-auto">
+                Report an Item
+              </Button>
+            </Link>
+            <Link to="/browse">
+              <Button variant="ghost" size="lg" className="w-full sm:w-auto">
+                Browse Lost & Found
+              </Button>
+            </Link>
           </div>
         </div>
       </Container>

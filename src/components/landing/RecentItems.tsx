@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/ui/Container';
 import { Text } from '@/components/ui/Typography';
@@ -14,9 +15,11 @@ export const RecentItems = () => (
             RECENTLY REPORTED
           </Text>
         </div>
-        <Button variant="ghost" size="sm" className="md:ml-auto">
-          View All Reports
-        </Button>
+        <Link to="/browse">
+          <Button variant="ghost" size="sm" className="md:ml-auto">
+            View All Reports
+          </Button>
+        </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {mockItems.map((item) => (

@@ -1,12 +1,13 @@
+import { Link } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Logo } from '@/components/ui/Logo';
 import { Text } from '@/components/ui/Typography';
 
 const footerLinks = [
-  { label: 'Browse', href: '#recently-reported' },
-  { label: 'Report Lost', href: '#report-lost' },
-  { label: 'Report Found', href: '#report-found' },
-  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Browse', to: '/browse' },
+  { label: 'Report Lost', to: '/report-lost' },
+  { label: 'Report Found', to: '/report-found' },
+  { label: 'How It Works', to: '#how-it-works' },
 ] as const;
 
 export const Footer = () => (
@@ -21,13 +22,13 @@ export const Footer = () => (
         </div>
         <nav className="flex flex-col gap-3" aria-label="Footer navigation">
           {footerLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+            <Link
+              key={link.to}
+              to={link.to}
               className="text-sm font-medium text-black/70 hover:text-brand transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="flex flex-col gap-3 text-sm text-grey">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Logo } from '@/components/ui/Logo';
@@ -6,15 +7,16 @@ import { MobileMenu } from './MobileMenu';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-  { label: 'Browse', href: '#recently-reported' },
-  { label: 'Report Lost', href: '#report-lost' },
-  { label: 'Report Found', href: '#report-found' },
-  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Browse', to: '/browse' },
+  { label: 'Report Lost', to: '/report-lost' },
+  { label: 'Report Found', to: '/report-found' },
+  { label: 'How It Works', to: '#how-it-works' },
 ] as const;
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,8 @@ export const Navbar = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <>
@@ -39,23 +43,25 @@ export const Navbar = () => {
           <Logo className="flex-shrink-0" />
           <nav className="hidden gap-8 md:flex items-center" aria-label="Primary navigation">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <Link
+                key={link.to}
+                to={link.to}
                 className={cn(
                   'text-sm font-medium text-black/70',
-                  'hover:text-brand',
+                  isActive(link.to) ? 'text-brand' : 'hover:text-brand',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
                   'active:text-brand/70',
                   'transition-colors duration-150 ease-out'
                 )}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <Button variant="secondary" size="sm" className="ml-4 md:ml-0">
-              Report an Item
-            </Button>
+            <Link to="/report-lost">
+              <Button variant="secondary" size="sm" className="ml-4 md:ml-0">
+                Report an Item
+              </Button>
+            </Link>
           </nav>
           <button
             type="button"

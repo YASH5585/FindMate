@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 
 const navLinks = [
-  { label: 'Browse', href: '#recently-reported' },
-  { label: 'Report Lost', href: '#report-lost' },
-  { label: 'Report Found', href: '#report-found' },
-  { label: 'How It Works', href: '#how-it-works' },
+  { label: 'Browse', to: '/browse' },
+  { label: 'Report Lost', to: '/report-lost' },
+  { label: 'Report Found', to: '/report-found' },
+  { label: 'How It Works', to: '#how-it-works' },
 ] as const;
 
 interface MobileMenuProps {
@@ -91,24 +92,20 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         </div>
         <nav className="flex-1 flex flex-col gap-6">
           {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+            <Link
+              key={link.to}
+              to={link.to}
               onClick={onClose}
               className="text-2xl md:text-3xl font-display font-bold text-black hover:text-brand transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="pt-8 border-t border-black/10">
-          <a
-            href="#report-lost"
-            onClick={onClose}
-            className="inline-flex w-full items-center justify-center gap-2 h-12 px-5 text-base font-semibold rounded-card bg-brand text-white hover:bg-brand/90 active:bg-brand/80 transition-colors"
-          >
+          <Link to="/report-lost" onClick={onClose} className="inline-flex w-full items-center justify-center gap-2 h-12 px-5 text-base font-semibold rounded-card bg-brand text-white hover:bg-brand/90 active:bg-brand/80 transition-colors">
             Report an Item
-          </a>
+          </Link>
         </div>
       </div>
     </div>
