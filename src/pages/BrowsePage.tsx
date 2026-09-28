@@ -1,136 +1,143 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useSearch } from '@/hooks/useSearch';
-import { useFilters } from '@/hooks/useFilters';
-import { useSort } from '@/hooks/useSort';
-import Image from 'next/image';
-import { Item } from '@/types/item';
-import { Spinner } from '@/components/ui/Spinner';
+import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import type { Item } from '@/types/item';
+import { mockItems } from '@/data/mockItems';
+import { Container } from '@/components/ui/Container';
+import { Heading } from '@/components/ui/Typography';
+import { Text } from '@/components/ui/Typography';
+import { SearchBar } from '@/components/browse/SearchBar';
+import { FilterControls } from '@/components/browse/FilterControls';
+import { SortControl } from '@/components/browse/SortControl';
+import { ItemGrid } from '@/components/browse/ItemGrid';
 import { EmptyState } from '@/components/browse/EmptyState';
-import { LoadingState } from '@/components/browse/LoadingState';
-import styles from '@/styles/BrowsePage.module.css';
-import { cn } from '@/lib/utils';
+
+type SortOption = 'newest' | 'oldest';
+
+const dateToNumber = (dateString: string): number => {
+  const d = new Date(dateString);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+};
+
+const isRecent = (dateString: string, days: number): boolean => {
+  const itemDate = new Date(dateString);
+  if (isNaN(itemDate.getTime())) return false;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  return itemDate >= cutoff;
+};
+
+const normalize = (value: string): string => value.toLowerCase().trim();
 
 export const BrowsePage = () => {
+  const [, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<Record<string, any>>({});
-  const [sortBy, setSortBy] = useState<'createdAt'>('createdAt');
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const searchParams = useSearchParams();
+  const [status, setStatus] = useState('all');
+  const [category, setCategory] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
+  const [date, setDate] = useState('all');
+  const [sort, setSort] = useState<SortOption>('newest');
 
-  useEffect(() => {
-    const q = searchParams.get('q');
-    if (q) setSearchQuery(q);
-    const f = searchParams.get('filters');
-    if (f) setFilters(JSON.parse(f));
-    const s = searchParams.get('sort');
-    if (s) setSortBy(s);
-  }, [searchParams]);
+  const hasActiveFilters =
+    status !== 'all' ||
+    category !== 'all' ||
+    locationFilter !== 'all' ||
+    date !== 'all' ||
+    searchQuery !== '';
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setFilters({});
+  const filtered = useMemo(() => {
+    const query = normalize(searchQuery);
+
+    return mockItems.filter((item: Item) => {
+      if (status !== 'all' && item.status !== status) return false;
+      if (category !== 'all' && item.category !== category) return false;
+      if (locationFilter !== 'all' && normalize(item.location) !== normalize(locationFilter)) {
+        return false;
+      }
+
+      if (date === 'recent' && !isRecent(item.date, 7)) return false;
+      if (date === 'older' && isRecent(item.date, 7)) return false;
+
+      if (query) {
+        const text = normalize(`${item.name} ${item.description} ${item.category} ${item.location} ${item.reporterName}`);
+        if (!text.includes(query)) return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, status, category, locationFilter, date]);
+
+  const sorted = useMemo(() => {
+    const items = [...filtered];
+    items.sort((a, b) => {
+      const aTime = dateToNumber(a.date);
+      const bTime = dateToNumber(b.date);
+      return sort === 'newest' ? bTime - aTime : aTime - bTime;
+    });
+    return items;
+  }, [filtered, sort]);
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setStatus('all');
+    setCategory('all');
+    setLocationFilter('all');
+    setDate('all');
+    setSort('newest');
+    setSearchParams({});
   };
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value);
-  };
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const query = searchParams.get('q') ?? searchQuery;
-      const result = await fetch(`/api/items?search=${query}&filters=${JSON.stringify(filters)}&sort=${sortBy}`);
-      if (!result.ok) throw new Error('Failed to fetch items');
-      const data = await result.json();
-      setItems(data.items);
-    } catch (err) {
-      setError('Unable to load items');
-    } finally {
-      setLoading(false);
+
+  const handleCategoryChange = (value: string) => {
+    setCategory(value);
+    if (value !== 'all') {
+      setSearchParams({ category: value });
+    } else {
+      setSearchParams({});
     }
   };
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <h1>Browse Lost & Found</h1>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={handleSearch}
-          className={styles.searchInput}
-        />
+    <div className="w-full">
+      <header className="mb-8">
+        <Container>
+          <Heading level={1} size="h1" className="mb-2">
+            Browse Lost & Found
+          </Heading>
+          <Text color="muted">
+            {sorted.length} item{sorted.length !== 1 ? 's' : ''} found
+          </Text>
+        </Container>
       </header>
 
-      <section className={styles.filters}>
-        <select
-          name="category"
-          value={filters.category ?? ''}
-          onChange={handleFilterChange}
-          className={styles.select}
-        >
-          <option value="">All Categories</option>
-          <option value="lost">Lost Items</option>
-          <option value="found">Found Items</option>
-        </select>
-
-        <select
-          name="dateRange"
-          value={filters.dateRange ?? ''}
-          onChange={handleFilterChange}
-          className={styles.select}
-        >
-          <option value="">Any Date</option>
-          <option value="today">Today</option>
-          <option value="week">Past Week</option>
-          <option value="month">Past Month</option>
-        </select>
-
-        <select
-          name="sort"
-          value={sortBy}
-          onChange={handleSortChange}
-          className={styles.select}
-        >
-          <option value="createdAt">Newest</option>
-          <option value="name">A‑Z</option>
-          <option value="date">Oldest</option>
-        </select>
-      </section>
-
-      {loading && <LoadingState />}
-      {error && <div className={styles.error}>{error}</div>}
-      {!loading && !error && (
-        <div className={styles.grid}>
-          {items.length ? (
-            items.map(item => (
-              <div key={item.id} className={styles.card}>
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  width={200}
-                  height={150}
-                  className={styles.thumbnail}
-                />
-                <h3 className={styles.title}>{item.title}</h3>
-                <p className={styles.desc}>{item.description}</p>
-                <p className={styles.meta}>
-                  <strong>Category:</strong> {item.category}{' '}
-                  <strong>Date:</strong> {new Date(item.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            ))
-          ) : (
-            <EmptyState message="No items found." />
-          )}
+      <Container>
+        <div className="mb-6">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} onClear={() => setSearchQuery('')} />
         </div>
-      )}
+
+        <div className="mb-6">
+          <FilterControls
+            status={status}
+            category={category}
+            location={locationFilter}
+            date={date}
+            onStatusChange={setStatus}
+            onCategoryChange={handleCategoryChange}
+            onLocationChange={setLocationFilter}
+            onDateChange={setDate}
+            onClearAll={handleClearFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        </div>
+
+        <div className="flex items-center justify-between mb-6">
+          <SortControl value={sort} onChange={setSort} />
+        </div>
+
+        {sorted.length === 0 ? (
+          <EmptyState onClearFilters={handleClearFilters} />
+        ) : (
+          <ItemGrid items={sorted} />
+        )}
+      </Container>
     </div>
   );
 };

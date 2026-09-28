@@ -27,7 +27,7 @@ const LOCATIONS = [
   { value: 'other', label: 'Other' },
 ] as const;
 
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 interface ReportFormProps {
   mode: ReportMode;
@@ -73,10 +73,6 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
     }
   }, [isSubmitting]);
 
-  const getStringValue = (value: ReportFormData[keyof ReportFormData]): string => {
-    return typeof value === 'string' ? value.trim() : '';
-  };
-
   const validateField = (name: keyof ReportFormData, value: ReportFormData[keyof ReportFormData]): string | undefined => {
     const stringValue = typeof value === 'string' ? value.trim() : '';
 
@@ -97,6 +93,7 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
         if (!value || value === 'all') return 'Please select where it was lost.';
         return undefined;
       case 'date':
+        if (value instanceof File) return undefined;
         if (!value) return 'Please select the date.';
         if (new Date(value) > new Date()) return 'Date cannot be in the future.';
         return undefined;
@@ -136,8 +133,9 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
     setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
 
     if (firstErrorField) {
+      const elementId = firstErrorField;
       setTimeout(() => {
-        const element = document.getElementById(firstErrorField);
+        const element = document.getElementById(elementId);
         if (element) {
           element.focus();
         }
@@ -256,7 +254,7 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
               'bg-white border border-black/10 rounded-card',
               'focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand',
               'transition-colors duration-150 ease-out',
-              'bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23606060%27 stroke-width=%272%27%3E%3Cpolyline points=%276 9 12 15 18 9%27%3E%3C/polyline%3E%3C/svg%27")] bg-right-3 bg-center pr-10 bg-no-repeat',
+              'bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23606060%27 stroke-width=%272%27%3E%3Cpolyline points=%276 9 12 15 18 9%27%3E%3C/polyline%3E%3C/svg%27)] bg-right-3 bg-center pr-10 bg-no-repeat',
               touched.category && errors.category && 'border-brand focus:border-brand focus:ring-brand'
             )}
             aria-invalid={touched.category && !!errors.category}
@@ -310,7 +308,7 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
               'bg-white border border-black/10 rounded-card',
               'focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand',
               'transition-colors duration-150 ease-out',
-              'bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23606060%27 stroke-width=%272%27%3E%3Cpolyline points=%276 9 12 15 18 9%27%3E%3C/polyline%3E%3C/svg%27")] bg-right-3 bg-center pr-10 bg-no-repeat',
+              'bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23606060%27 stroke-width=%272%27%3E%3Cpolyline points=%276 9 12 15 18 9%27%3E%3C/polyline%3E%3C/svg%27)] bg-right-3 bg-center pr-10 bg-no-repeat',
               touched.location && errors.location && 'border-brand focus:border-brand focus:ring-brand'
             )}
             aria-invalid={touched.location && !!errors.location}
@@ -402,25 +400,3 @@ export const ReportForm = ({ mode, onSubmit }: ReportFormProps) => {
     </form>
   );
 };
-
-const CATEGORIES = [
-  { value: 'electronics', label: 'Electronics' },
-  { value: 'id-card', label: 'ID / Cards' },
-  { value: 'bags', label: 'Bags' },
-  { value: 'books', label: 'Books' },
-  { value: 'accessories', label: 'Accessories' },
-  { value: 'clothing', label: 'Clothing' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const LOCATIONS = [
-  { value: 'library', label: 'Library' },
-  { value: 'cafeteria', label: 'Cafeteria' },
-  { value: 'academic-block', label: 'Academic Block' },
-  { value: 'sports-complex', label: 'Sports Complex' },
-  { value: 'hostel', label: 'Hostel' },
-  { value: 'parking-area', label: 'Parking Area' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const;

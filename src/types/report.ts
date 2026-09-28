@@ -37,6 +37,8 @@ export interface ReportFormErrors {
   date?: string;
   image?: string;
   contact?: string;
+  submit?: string;
+  imagePreview?: string;
 }
 
 export interface ReportSubmitResult {
