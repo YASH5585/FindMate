@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 
 const navLinks = [
   { label: 'Browse', to: '/browse' },
+  { label: 'My Reports', to: '/my-reports' },
   { label: 'Report Lost', to: '/report-lost' },
   { label: 'Report Found', to: '/report-found' },
   { label: 'How It Works', to: '#how-it-works' },

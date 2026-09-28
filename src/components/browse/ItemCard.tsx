@@ -1,4 +1,5 @@
 import type { Item } from '@/types/item';
+import { Link } from 'react-router-dom';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { cn } from '@/lib/utils';
@@ -83,55 +84,63 @@ export const ItemCard = ({ item }: ItemCardProps) => {
   const icon = categoryIcons[item.category] || categoryIcons.other;
 
   return (
-    <article
+    <Link
+      to={`/item/${item.id}`}
       className={cn(
-        'group relative border border-black/10 bg-white rounded-card overflow-hidden',
-        'transition-all duration-300 ease-out',
-        'hover:border-brand/30 hover:bg-brand/5'
+        'group block no-underline text-current outline-none',
+        'focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-card'
       )}
     >
-      <div className="relative aspect-[4/3] bg-surface-subtle overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center text-grey-light group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500 ease-out">
-          {icon}
+      <article
+        className={cn(
+          'relative border border-black/10 bg-white rounded-card overflow-hidden',
+          'transition-all duration-300 ease-out',
+          'hover:border-brand/30 hover:bg-brand/5'
+        )}
+      >
+        <div className="relative aspect-[4/3] bg-surface-subtle overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center text-grey-light group-hover:scale-105 group-hover:rotate-3 transition-transform duration-500 ease-out">
+            {icon}
+          </div>
+          <div
+            className={cn(
+              'absolute top-3 right-3 px-2.5 py-1 text-xs font-medium rounded-full border',
+              statusClass
+            )}
+          >
+            {item.status === 'lost' ? 'LOST' : 'FOUND'}
+          </div>
         </div>
-        <div
-          className={cn(
-            'absolute top-3 right-3 px-2.5 py-1 text-xs font-medium rounded-full border',
-            statusClass
-          )}
-        >
-          {item.status === 'lost' ? 'LOST' : 'FOUND'}
-        </div>
-      </div>
-      <div className="p-5 space-y-3">
-        <Heading level={3} size="h4" className="group-hover:text-brand transition-colors">
-          {item.name}
-        </Heading>
-        <Text size="sm" color="muted" className="line-clamp-2">
-          {item.description}
-        </Text>
-        <div className="flex flex-wrap items-center gap-2 text-sm text-grey">
-          <span className="flex items-center gap-1.5">
-            {categoryIcons[item.category] || categoryIcons.other}
-            <span>{categoryLabels[item.category] || item.category}</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <span>{locationLabels[item.location] || item.location}</span>
-          </span>
-        </div>
-        <div className="pt-2 border-t border-black/10 flex items-center justify-between">
-          <Text size="sm" color="muted">
-            Reported {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        <div className="p-5 space-y-3">
+          <Heading level={3} size="h4" className="group-hover:text-brand transition-colors">
+            {item.name}
+          </Heading>
+          <Text size="sm" color="muted" className="line-clamp-2">
+            {item.description}
           </Text>
-          <Text size="sm" color="muted">
-            by {item.reporterName}
-          </Text>
+          <div className="flex flex-wrap items-center gap-2 text-sm text-grey">
+            <span className="flex items-center gap-1.5">
+              {icon}
+              <span>{categoryLabels[item.category] || item.category}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span>{locationLabels[item.location] || item.location}</span>
+            </span>
+          </div>
+          <div className="pt-2 border-t border-black/10 flex items-center justify-between">
+            <Text size="sm" color="muted">
+              Reported {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </Text>
+            <Text size="sm" color="muted">
+              by {item.reporterName}
+            </Text>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </Link>
   );
 };

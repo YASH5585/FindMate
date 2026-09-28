@@ -11,6 +11,8 @@ import { FinalCTA } from '@/components/landing/FinalCTA';
 import { BrowsePage } from '@/pages/BrowsePage';
 import { ReportLostPage } from '@/pages/ReportLostPage';
 import { ReportFoundPage } from '@/pages/ReportFoundPage';
+import { ItemDetailsPage } from '@/pages/ItemDetailsPage';
+import { MyReportsPage } from '@/pages/MyReportsPage';
 
 export default function App() {
   return (
@@ -30,6 +32,8 @@ export default function App() {
             </>
           } />
           <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/item/:id" element={<ItemDetailsPage />} />
+          <Route path="/my-reports" element={<MyReportsPage />} />
           <Route path="/report-lost" element={<ReportLostPage />} />
           <Route path="/report-found" element={<ReportFoundPage />} />
         </Routes>
