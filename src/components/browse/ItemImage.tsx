@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 interface ItemImageProps {
-  src?: string;
+  src?: string | null;
   alt: string;
   className?: string;
 }

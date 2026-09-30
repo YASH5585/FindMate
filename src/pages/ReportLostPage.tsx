@@ -4,33 +4,30 @@ import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { ReportForm } from '@/components/report/ReportForm';
 import type { ReportFormData, ReportSubmitResult } from '@/types/report';
+import { createItem, toCreateItemRequest } from '@/lib/api/items';
 
 export const ReportLostPage = () => {
   const handleSubmit = async (data: ReportFormData): Promise<ReportSubmitResult> => {
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Create new item from form data
-    const newItem = {
-      id: `${Date.now()}`,
-      name: data.name,
-      status: 'lost' as const,
-      category: data.category,
-      description: data.description,
-      location: data.location,
-      date: data.date,
-      image: data.imagePreview,
-      reporterName: 'Current User',
-      contact: data.contact,
-      createdAt: new Date().toISOString(),
-    };
 
-    // Store in localStorage for persistence
-    const storedReports = JSON.parse(localStorage.getItem('findmate_reports') || '[]');
-    storedReports.unshift(newItem);
-    localStorage.setItem('findmate_reports', JSON.stringify(storedReports));
+    const reporterName = 'Current User';
+    const contact = data.contact;
+    const newItem = toCreateItemRequest(data, reporterName, 'lost', contact);
 
-    return { success: true, item: newItem };
+    try {
+      const saved = await createItem(newItem);
+      return { success: true, item: saved };
+    } catch {
+      const fallback = {
+        ...newItem,
+        id: `${Date.now()}`,
+        createdAt: new Date().toISOString(),
+      };
+      const storedReports = JSON.parse(localStorage.getItem('findmate_reports') || '[]');
+      storedReports.unshift(fallback);
+      localStorage.setItem('findmate_reports', JSON.stringify(storedReports));
+      return { success: true, item: fallback };
+    }
   };
 
   return (

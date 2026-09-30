@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Item } from '@/types/item';
 import { mockItems } from '@/data/mockItems';
+import { getItems } from '@/lib/api/items';
 import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
+import { Spinner } from '@/components/ui/Spinner';
 import { SearchBar } from '@/components/browse/SearchBar';
 import { FilterControls } from '@/components/browse/FilterControls';
 import { SortControl } from '@/components/browse/SortControl';
@@ -36,6 +38,30 @@ export const BrowsePage = () => {
   const [locationFilter, setLocationFilter] = useState('all');
   const [date, setDate] = useState('all');
   const [sort, setSort] = useState<SortOption>('newest');
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getItems()
+      .then((data) => {
+        if (!cancelled) {
+          setItems(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setItems(mockItems);
+          setError('Could not load items from server; showing demo data.');
+          setLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const hasActiveFilters =
     status !== 'all' ||
@@ -44,10 +70,10 @@ export const BrowsePage = () => {
     date !== 'all' ||
     searchQuery !== '';
 
-  const filtered = useMemo(() => {
+   const filtered = useMemo(() => {
     const query = normalize(searchQuery);
 
-    return mockItems.filter((item: Item) => {
+    return items.filter((item: Item) => {
       if (status !== 'all' && item.status !== status) return false;
       if (category !== 'all' && item.category !== category) return false;
       if (locationFilter !== 'all' && normalize(item.location) !== normalize(locationFilter)) {
@@ -64,7 +90,7 @@ export const BrowsePage = () => {
 
       return true;
     });
-  }, [searchQuery, status, category, locationFilter, date]);
+  }, [items, searchQuery, status, category, locationFilter, date]);
 
   const sorted = useMemo(() => {
     const items = [...filtered];
@@ -128,11 +154,21 @@ export const BrowsePage = () => {
           />
         </div>
 
-        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6">
           <SortControl value={sort} onChange={setSort} />
         </div>
 
-        {sorted.length === 0 ? (
+        {error && (
+          <Text color="muted" size="sm" className="mb-4">
+            {error}
+          </Text>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Spinner />
+          </div>
+        ) : sorted.length === 0 ? (
           <EmptyState onClearFilters={handleClearFilters} />
         ) : (
           <ItemGrid items={sorted} />

@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import type { Item } from '@/types/item';
 import { getItemById } from '@/lib/items';
+import { getItemById as fetchItemById } from '@/lib/api/items';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
+import { Spinner } from '@/components/ui/Spinner';
 import { cn } from '@/lib/utils';
 import { NotFound } from '@/components/browse/NotFound';
 import { ItemDetailView } from '@/components/browse/ItemDetailView';
@@ -11,9 +15,41 @@ import { ItemDetailView } from '@/components/browse/ItemDetailView';
 export const ItemDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const item = id ? getItemById(id) : undefined;
+  const [item, setItem] = useState<Item | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
 
-  if (!item) {
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(false);
+    fetchItemById(id)
+      .then((data) => {
+        setItem(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        const fallback = getItemById(id);
+        setItem(fallback);
+        setError(!fallback);
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading || !id) {
+    return (
+      <Container className="py-12">
+        <div className="flex justify-center">
+          <Spinner />
+        </div>
+      </Container>
+    );
+  }
+
+  if (error || !item) {
     return (
       <Container className="py-12">
         <NotFound

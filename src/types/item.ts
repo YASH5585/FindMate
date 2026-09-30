@@ -9,6 +9,9 @@ export interface Item {
   description: string;
   location: string;
   date: string;
-  image?: string;
+  image?: string | null;
   reporterName: string;
+  contact?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
