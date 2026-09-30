@@ -24,6 +24,7 @@ export class ApiClient {
     const url = `${this.baseURL}${path.startsWith('/') ? path : `/${path}`}`;
     const response = await fetch(url, {
       ...options,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(options.headers ?? {}),
@@ -35,10 +36,13 @@ export class ApiClient {
       let details: unknown;
       try {
         const errorBody = await response.json();
-        errorMessage = (errorBody as { message?: string; error?: string }).message ?? (errorBody as { message?: string; error?: string }).error ?? errorMessage;
+        errorMessage =
+          (errorBody as { message?: string; error?: string }).message ??
+          (errorBody as { message?: string; error?: string }).error ??
+          errorMessage;
         details = errorBody;
       } catch {
-        // fallback: ignore non-JSON body
+        // ignore non-JSON error bodies
       }
       throw new ApiError(errorMessage, response.status, details);
     }

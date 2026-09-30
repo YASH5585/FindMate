@@ -1,34 +1,55 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import type { Item } from '@/types/item';
-import { mockItems } from '@/data/mockItems';
-import { getReportsForUser } from '@/lib/api/items';
+import { getMyReports } from '@/lib/api/items';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Spinner } from '@/components/ui/Spinner';
 import { ItemGrid } from '@/components/browse/ItemGrid';
-
-const DEMO_USER = 'Alex Chen';
+import { LoginPrompt } from '@/components/auth/LoginPrompt';
 
 export const MyReportsPage = () => {
+  const { user } = useAuth();
   const [reports, setReports] = useState<Item[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
     setLoading(true);
-    getReportsForUser(DEMO_USER)
+    setError(null);
+    getMyReports()
       .then((data) => {
-        setReports(data);
-        setLoading(false);
+        if (!cancelled) {
+          setReports(data);
+          setLoading(false);
+        }
       })
       .catch(() => {
-        const fallback = mockItems.filter((item: Item) => item.reporterName === DEMO_USER);
-        setReports(fallback);
-        setLoading(false);
+        if (!cancelled) {
+          setError('Could not load your reports.');
+          setLoading(false);
+        }
       });
-  }, []);
+    return () => { cancelled = true; };
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="w-full py-8">
+        <Container>
+          <LoginPrompt message="You need to be signed in to view your reports." />
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full py-8">
@@ -38,7 +59,7 @@ export const MyReportsPage = () => {
             My Reports
           </Heading>
           <Text color="muted" size="sm">
-            Demo user: {DEMO_USER}. Items you have reported.
+            Items you have reported.
           </Text>
         </Container>
       </header>
@@ -48,6 +69,8 @@ export const MyReportsPage = () => {
           <div className="flex justify-center py-12">
             <Spinner />
           </div>
+        ) : error ? (
+          <Text color="muted" className="py-12 text-center">{error}</Text>
         ) : reports.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
             <div className="mb-6">

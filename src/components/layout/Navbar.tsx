@@ -1,23 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Logo } from '@/components/ui/Logo';
 import { MobileMenu } from './MobileMenu';
 import { cn } from '@/lib/utils';
 
-const navLinks = [
-  { label: 'Browse', to: '/browse' },
-  { label: 'My Reports', to: '/my-reports' },
-  { label: 'Report Lost', to: '/report-lost' },
-  { label: 'Report Found', to: '/report-found' },
-  { label: 'How It Works', to: '#how-it-works' },
-] as const;
-
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +23,11 @@ export const Navbar = () => {
   }, []);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <>
@@ -43,26 +43,54 @@ export const Navbar = () => {
         <Container className="flex h-full items-center justify-between">
           <Logo className="flex-shrink-0" />
           <nav className="hidden gap-8 md:flex items-center" aria-label="Primary navigation">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={cn(
-                  'text-sm font-medium text-black/70',
-                  isActive(link.to) ? 'text-brand' : 'hover:text-brand',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-                  'active:text-brand/70',
-                  'transition-colors duration-150 ease-out'
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Link to="/report-lost">
-              <Button variant="secondary" size="sm" className="ml-4 md:ml-0">
-                Report an Item
-              </Button>
+            <Link
+              to="/browse"
+              className={cn(
+                'text-sm font-medium text-black/70',
+                isActive('/browse') ? 'text-brand' : 'hover:text-brand',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+                'active:text-brand/70 transition-colors duration-150 ease-out'
+              )}
+            >
+              Browse
             </Link>
+            {user ? (
+              <>
+                <Link
+                  to="/my-reports"
+                  className={cn(
+                    'text-sm font-medium text-black/70',
+                    isActive('/my-reports') ? 'text-brand' : 'hover:text-brand',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+                    'active:text-brand/70 transition-colors duration-150 ease-out'
+                  )}
+                >
+                  My Reports
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleLogout} disabled={loading}>
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className={cn(
+                    'text-sm font-medium text-black/70',
+                    isActive('/login') ? 'text-brand' : 'hover:text-brand',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+                    'active:text-brand/70 transition-colors duration-150 ease-out'
+                  )}
+                >
+                  Login
+                </Link>
+                <Link to="/register">
+                  <Button variant="secondary" size="sm" className="ml-4">
+                    Register
+                  </Button>
+                </Link>
+              </>
+            )}
           </nav>
           <button
             type="button"
@@ -70,8 +98,7 @@ export const Navbar = () => {
               'md:hidden inline-flex items-center justify-center p-2 rounded-md',
               'text-black/70 hover:text-brand',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-              'active:text-brand/70',
-              'transition-colors duration-150 ease-out'
+              'active:text-brand/70 transition-colors duration-150 ease-out'
             )}
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open navigation menu"
@@ -89,6 +116,8 @@ export const Navbar = () => {
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
+        user={user}
+        onLogout={handleLogout}
       />
     </>
   );

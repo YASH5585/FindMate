@@ -47,8 +47,12 @@ export async function createItem(data: CreateItemRequest): Promise<Item> {
   return apiClient.post<Item>('/items', data);
 }
 
-export async function getReportsForUser(userIdentifier: string): Promise<Item[]> {
-  return apiClient.get<Item[]>(`/items?reporterName=${encodeURIComponent(userIdentifier)}&sortOrder=desc`);
+export async function getReportsForUser(_userIdentifier: string): Promise<Item[]> {
+  return getMyReports();
+}
+
+export async function getMyReports(): Promise<Item[]> {
+  return apiClient.get<Item[]>('/items/mine');
 }
 
 export function toCreateItemRequest(formData: ReportFormData, reporterName: string, status: ItemStatus, contact: string): CreateItemRequest {

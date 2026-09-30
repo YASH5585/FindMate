@@ -11,6 +11,7 @@ export interface Item {
   image: string | null;
   reporterName: string;
   contact: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,6 +26,7 @@ export interface CreateItemRequest {
   image: string | null;
   reporterName: string;
   contact: string;
+  userId: string;
 }
 
 export interface ItemFilters {

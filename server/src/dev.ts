@@ -1,20 +1,23 @@
 /**
  * Local development entrypoint.
- * Starts the real Express server backed by an in-memory PostgreSQL-compatible
+ * Starts the Express server backed by an in-memory PostgreSQL-compatible
  * database (pg-mem). This is for LOCAL DEVELOPMENT ONLY and is never used in
  * production. Production requires a real PostgreSQL instance via DATABASE_URL.
  */
 import 'dotenv/config';
 import { newDb } from 'pg-mem';
+import type { Pool } from 'pg';
 import { setPool, getPool } from './db';
 import { SCHEMA_SQL } from './db/schema';
-import app from './app';
+import { registerExtensions } from './db/pg-mem-helpers';
+import { createApp } from './app';
 import { config } from './config';
 
 async function main(): Promise<void> {
   const memDb: any = newDb();
+  registerExtensions(memDb);
   const { Pool } = memDb.adapters.createPg();
-  const pool = new Pool(memDb.connectionParameters);
+  const pool = new Pool(memDb.connectionParameters) as unknown as Pool;
   setPool(pool);
 
   const client = await getPool().connect();
@@ -23,6 +26,8 @@ async function main(): Promise<void> {
   } finally {
     client.release();
   }
+
+  const app = createApp(pool, true);
 
   app.listen(config.port, () => {
     console.log(`FindMate API (dev, in-memory) listening on port ${config.port}`);

@@ -3,32 +3,43 @@ import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { ReportForm } from '@/components/report/ReportForm';
+import { LoginPrompt } from '@/components/auth/LoginPrompt';
+import { useAuth } from '@/hooks/useAuth';
 import type { ReportFormData, ReportSubmitResult } from '@/types/report';
 import { createItem, toCreateItemRequest } from '@/lib/api/items';
+import { ApiError } from '@/lib/api/client';
 
 export const ReportLostPage = () => {
-  const handleSubmit = async (data: ReportFormData): Promise<ReportSubmitResult> => {
-    await new Promise(resolve => setTimeout(resolve, 800));
+  const { user } = useAuth();
 
-    const reporterName = 'Current User';
+  const handleSubmit = async (data: ReportFormData): Promise<ReportSubmitResult> => {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const reporterName = user?.name ?? 'Current User';
     const contact = data.contact;
     const newItem = toCreateItemRequest(data, reporterName, 'lost', contact);
 
     try {
       const saved = await createItem(newItem);
       return { success: true, item: saved };
-    } catch {
-      const fallback = {
-        ...newItem,
-        id: `${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      };
-      const storedReports = JSON.parse(localStorage.getItem('findmate_reports') || '[]');
-      storedReports.unshift(fallback);
-      localStorage.setItem('findmate_reports', JSON.stringify(storedReports));
-      return { success: true, item: fallback };
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        return { success: false, error: 'You must be signed in to report an item.' };
+      }
+      const message = err instanceof Error ? err.message : 'Could not submit your report.';
+      return { success: false, error: message };
     }
   };
+
+  if (!user) {
+    return (
+      <Section className="py-12 md:py-20">
+        <Container>
+          <LoginPrompt message="You need to be signed in to report a lost item." />
+        </Container>
+      </Section>
+    );
+  }
 
   return (
     <>

@@ -1,20 +1,30 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
+import { Button } from '@/components/ui/Button';
+import type { SafeUser } from '@/lib/api/auth';
 
-const navLinks = [
+interface MobileMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: SafeUser | null;
+  onLogout: () => Promise<void>;
+}
+
+const publicNavLinks = [
   { label: 'Browse', to: '/browse' },
   { label: 'Report Lost', to: '/report-lost' },
   { label: 'Report Found', to: '/report-found' },
   { label: 'How It Works', to: '#how-it-works' },
 ] as const;
 
-interface MobileMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+const authNavLinks = [
+  { label: 'Browse', to: '/browse' },
+  { label: 'My Reports', to: '/my-reports' },
+  { label: 'How It Works', to: '#how-it-works' },
+] as const;
 
-export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
+export const MobileMenu = ({ isOpen, onClose, user, onLogout }: MobileMenuProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
@@ -61,6 +71,8 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
 
   if (!isOpen) return null;
 
+  const navLinks = user ? authNavLinks : publicNavLinks;
+
   return (
     <div
       ref={overlayRef}
@@ -103,9 +115,15 @@ export const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           ))}
         </nav>
         <div className="pt-8 border-t border-black/10">
-          <Link to="/report-lost" onClick={onClose} className="inline-flex w-full items-center justify-center gap-2 h-12 px-5 text-base font-semibold rounded-card bg-brand text-white hover:bg-brand/90 active:bg-brand/80 transition-colors">
-            Report an Item
-          </Link>
+          {user ? (
+            <Button variant="secondary" size="lg" className="w-full" onClick={async () => { await onLogout(); onClose(); }}>
+              Logout
+            </Button>
+          ) : (
+            <Link to="/report-lost" onClick={onClose} className="inline-flex w-full items-center justify-center gap-2 h-12 px-5 text-base font-semibold rounded-card bg-brand text-white hover:bg-brand/90 active:bg-brand/80 transition-colors">
+              Report an Item
+            </Link>
+          )}
         </div>
       </div>
     </div>
