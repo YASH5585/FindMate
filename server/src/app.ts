@@ -6,6 +6,7 @@ import type { Pool } from 'pg';
 import { config } from './config';
 import itemRoutes from './routes/itemRoutes';
 import authRoutes from './routes/authRoutes';
+import contactRequestRoutes from './routes/contactRequestRoutes';
 import { errorHandler, notFound } from './middleware/errorHandler';
 
 const PostgresqlStore = connectPgSimple(session);
@@ -51,6 +52,7 @@ export function createApp(pool: Pool, useMemoryStore = false): express.Applicati
 
   app.use('/api/auth', authRoutes);
   app.use('/api/items', itemRoutes);
+  app.use('/api/contact-requests', contactRequestRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -15,6 +15,7 @@ import { ItemDetailsPage } from '@/pages/ItemDetailsPage';
 import { MyReportsPage } from '@/pages/MyReportsPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
+import { ContactRequestsPage } from '@/pages/ContactRequestsPage';
 import { AuthProvider } from '@/hooks/useAuth';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/browse" element={<BrowsePage />} />
             <Route path="/item/:id" element={<ItemDetailsPage />} />
             <Route path="/my-reports" element={<MyReportsPage />} />
+            <Route path="/contact-requests" element={<ContactRequestsPage />} />
             <Route path="/report-lost" element={<ReportLostPage />} />
             <Route path="/report-found" element={<ReportFoundPage />} />
             <Route path="/login" element={<LoginPage />} />

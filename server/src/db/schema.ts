@@ -32,6 +32,25 @@ CREATE INDEX IF NOT EXISTS idx_items_location ON items(location);
 CREATE INDEX IF NOT EXISTS idx_items_created_at ON items(created_at);
 CREATE INDEX IF NOT EXISTS idx_items_user_id ON items(user_id);
 
+CREATE TABLE IF NOT EXISTS contact_requests (
+    id UUID PRIMARY KEY,
+    item_id UUID NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    message TEXT NOT NULL CHECK (message <> ''),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'closed')),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_not_self_contact CHECK (sender_id <> receiver_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_contact_requests_item_id ON contact_requests(item_id);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_sender_id ON contact_requests(sender_id);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_receiver_id ON contact_requests(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_status ON contact_requests(status);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_created_at ON contact_requests(created_at);
+CREATE INDEX IF NOT EXISTS idx_contact_requests_owner_pending ON contact_requests(receiver_id, status) WHERE status = 'pending';
+
 -- connect-pg-simple session store table
 CREATE TABLE IF NOT EXISTS session (
     sid VARCHAR(255) PRIMARY KEY,

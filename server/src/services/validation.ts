@@ -41,3 +41,18 @@ export const LoginSchema = z.object({
   email: z.string().email('Valid email is required'),
   password: z.string().min(1, 'Password is required'),
 });
+
+export const CreateContactRequestSchema = z.object({
+  itemId: z.string().uuid('Invalid item id'),
+  message: z.string().min(1, 'Message is required').max(2000, 'Message must be 2000 characters or fewer'),
+});
+
+export const ContactRequestIdSchema = z.object({
+  id: z.string().uuid('Invalid contact request id'),
+});
+
+export const UpdateContactRequestSchema = z.object({
+  status: z.enum(['pending', 'accepted', 'declined', 'closed'], {
+    errorMap: () => ({ message: 'Invalid status' }),
+  }),
+});

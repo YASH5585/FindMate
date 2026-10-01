@@ -56,20 +56,31 @@ export const Navbar = () => {
             </Link>
             {user ? (
               <>
-                <Link
-                  to="/my-reports"
-                  className={cn(
-                    'text-sm font-medium text-black/70',
-                    isActive('/my-reports') ? 'text-brand' : 'hover:text-brand',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-                    'active:text-brand/70 transition-colors duration-150 ease-out'
-                  )}
-                >
-                  My Reports
-                </Link>
-                <Button variant="ghost" size="sm" onClick={handleLogout} disabled={loading}>
-                  Logout
-                </Button>
+            <Link
+              to="/my-reports"
+              className={cn(
+                'text-sm font-medium text-black/70',
+                isActive('/my-reports') ? 'text-brand' : 'hover:text-brand',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+                'active:text-brand/70 transition-colors duration-150 ease-out'
+              )}
+            >
+              My Reports
+            </Link>
+            <Link
+              to="/contact-requests"
+              className={cn(
+                'text-sm font-medium text-black/70',
+                isActive('/contact-requests') ? 'text-brand' : 'hover:text-brand',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+                'active:text-brand/70 transition-colors duration-150 ease-out'
+              )}
+            >
+              Contact Requests
+            </Link>
+            <Button variant="ghost" size="sm" onClick={handleLogout} disabled={loading}>
+              Logout
+            </Button>
               </>
             ) : (
               <>

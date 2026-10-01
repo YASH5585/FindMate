@@ -2,7 +2,9 @@ import { query as dbQuery } from '../db';
 import { randomUUID } from 'crypto';
 import type { Item, CreateItemRequest, ItemFilters } from '../types/item';
 
-const ITEM_SELECT = `id, name, status, category, description, location, date, image, reporter_name AS "reporterName", contact, user_id AS "userId", created_at AS "createdAt", updated_at AS "updatedAt"`;
+const PUBLIC_ITEM_SELECT = `id, name, status, category, description, location, date, image, reporter_name AS "reporterName", user_id AS "userId", created_at AS "createdAt", updated_at AS "updatedAt"`;
+const OWNER_ITEM_SELECT = `id, name, status, category, description, location, date, image, reporter_name AS "reporterName", contact, user_id AS "userId", created_at AS "createdAt", updated_at AS "updatedAt"`;
+const ITEM_SELECT = OWNER_ITEM_SELECT;
 
 export async function getItems(filters: ItemFilters): Promise<Item[]> {
   const {
@@ -43,7 +45,7 @@ export async function getItems(filters: ItemFilters): Promise<Item[]> {
   const order = sortOrder === 'asc' ? 'ASC' : 'DESC';
 
   const text = `
-    SELECT ${ITEM_SELECT}
+    SELECT ${PUBLIC_ITEM_SELECT}
     FROM items
     ${whereClause}
     ORDER BY ${orderColumn} ${order}
@@ -94,7 +96,7 @@ export async function getItemsByUser(userId: string, filters: ItemFilters): Prom
   const order = sortOrder === 'asc' ? 'ASC' : 'DESC';
 
   const text = `
-    SELECT ${ITEM_SELECT}
+    SELECT ${OWNER_ITEM_SELECT}
     FROM items
     ${whereClause}
     ORDER BY ${orderColumn} ${order}
@@ -106,9 +108,10 @@ export async function getItemsByUser(userId: string, filters: ItemFilters): Prom
   return result.rows as Item[];
 }
 
-export async function getItemById(id: string): Promise<Item | null> {
+export async function getItemById(id: string, options: { includeContact?: boolean } = {}): Promise<Item | null> {
+  const select = options.includeContact ? OWNER_ITEM_SELECT : PUBLIC_ITEM_SELECT;
   const result = await dbQuery(
-    `SELECT ${ITEM_SELECT} FROM items WHERE id = $1`,
+    `SELECT ${select} FROM items WHERE id = $1`,
     [id]
   );
 

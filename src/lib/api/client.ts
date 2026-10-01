@@ -64,6 +64,13 @@ export class ApiClient {
       body: JSON.stringify(body),
     });
   }
+
+  async patch<T>(path: string, body: unknown): Promise<T> {
+    return this.request<T>(path, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    });
+  }
 }
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';

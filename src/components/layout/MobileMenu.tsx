@@ -21,6 +21,7 @@ const publicNavLinks = [
 const authNavLinks = [
   { label: 'Browse', to: '/browse' },
   { label: 'My Reports', to: '/my-reports' },
+  { label: 'Contact Requests', to: '/contact-requests' },
   { label: 'How It Works', to: '#how-it-works' },
 ] as const;
 

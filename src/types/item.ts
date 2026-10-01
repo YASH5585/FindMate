@@ -12,6 +12,7 @@ export interface Item {
   image?: string | null;
   reporterName: string;
   contact?: string;
+  userId?: string;
   createdAt?: string;
   updatedAt?: string;
 }
