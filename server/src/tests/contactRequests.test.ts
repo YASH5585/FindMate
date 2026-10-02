@@ -295,6 +295,119 @@ describe('Contact requests: status transitions', () => {
   });
 });
 
+describe('Security: hardening and edge cases', () => {
+  let ownerAgent: any;
+  let senderAgent: any;
+  let strangerAgent: any;
+  let itemId: string;
+  let requestId: string;
+
+  beforeAll(async () => {
+    ownerAgent = request.agent(app);
+    senderAgent = request.agent(app);
+    strangerAgent = request.agent(app);
+    itemId = await createItem(ownerAgent, 'owner-sec@test.com');
+    await registerAndLogin(senderAgent, 'Sender', 'sender-sec@test.com');
+    await registerAndLogin(strangerAgent, 'Stranger', 'stranger-sec@test.com');
+
+    const res = await senderAgent.post('/api/contact-requests').send({
+      itemId,
+      message: 'Initial contact request for security tests',
+    });
+    requestId = res.body.id;
+  });
+
+  it('rejects invalid UUID format in path param (GET)', async () => {
+    const res = await senderAgent.get('/api/contact-requests/not-a-uuid');
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects invalid UUID format in path param (PATCH)', async () => {
+    const res = await senderAgent
+      .patch('/api/contact-requests/not-a-uuid')
+      .send({ status: 'closed' });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects oversized message input (>2000 chars)', async () => {
+    const res = await senderAgent.post('/api/contact-requests').send({
+      itemId,
+      message: 'X'.repeat(2001),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects missing message field', async () => {
+    const res = await senderAgent.post('/api/contact-requests').send({
+      itemId,
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('stranger cannot duplicate a pending request (dup prevention)', async () => {
+    await senderAgent.post('/api/contact-requests').send({
+      itemId,
+      message: 'Duplicate attempt from security tests',
+    });
+    const res = await strangerAgent.post('/api/contact-requests').send({
+      itemId,
+      message: 'Stranger trying to create a second pending request',
+    });
+    expect(res.status).toBe(201);
+    const dupRes = await strangerAgent.post('/api/contact-requests').send({
+      itemId,
+      message: 'Stranger duplicate attempt',
+    });
+    expect(dupRes.status).toBe(409);
+  });
+
+  it('stranger cannot PATCH an existing contact request (horizontal escalation, returns 404)', async () => {
+    const res = await strangerAgent
+      .patch(`/api/contact-requests/${requestId}`)
+      .send({ status: 'accepted' });
+    expect(res.status).toBe(404);
+  });
+
+  it('stranger cannot see the request via GET (returns 404)', async () => {
+    const res = await strangerAgent.get(`/api/contact-requests/${requestId}`);
+    expect(res.status).toBe(404);
+  });
+
+  it('rejects invalid status enum value in PATCH body', async () => {
+    const res = await senderAgent
+      .patch(`/api/contact-requests/${requestId}`)
+      .send({ status: 'malicious_status' });
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects invalid sortBy filter on public items list', async () => {
+    const res = await request(app).get('/api/items?sortBy=nonexistent_column');
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects invalid sortOrder filter on public items list', async () => {
+    const res = await request(app).get('/api/items?sortOrder=sideways');
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects out-of-range limit on public items list', async () => {
+    const res = await request(app).get('/api/items?limit=99999');
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects invalid item id format in GET /api/items/:id', async () => {
+    const res = await request(app).get('/api/items/not-a-uuid');
+    expect(res.status).toBe(400);
+  });
+
+  it('response headers include security headers (helmet)', async () => {
+    const res = await request(app).get('/health');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-frame-options']).toBeDefined();
+    expect(res.headers['content-security-policy']).toBeDefined();
+  });
+});
+
 describe('Public item APIs do not expose private contact data', () => {
   let ownerAgent: any;
 

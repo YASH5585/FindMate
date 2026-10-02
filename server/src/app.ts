@@ -2,26 +2,60 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+import helmet, { type HelmetOptions } from 'helmet';
 import type { Pool } from 'pg';
 import { config } from './config';
 import itemRoutes from './routes/itemRoutes';
 import authRoutes from './routes/authRoutes';
 import contactRequestRoutes from './routes/contactRequestRoutes';
 import { errorHandler, notFound } from './middleware/errorHandler';
+import {
+  authRateLimiter,
+  contactRateLimiter,
+  reportRateLimiter,
+} from './middleware/rateLimiter';
 
 const PostgresqlStore = connectPgSimple(session);
+
+function buildHelmetOptions(): HelmetOptions {
+  const directives: Record<string, string[]> = {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+    styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+    imgSrc: ["'self'", 'data:', 'https:'],
+    fontSrc: ["'self'", 'https:', 'data:'],
+    connectSrc: ["'self'"],
+    objectSrc: ["'none'"],
+    frameAncestors: ["'none'"],
+    baseUri: ["'self'"],
+  };
+  if (!config.isProduction) {
+    directives.connectSrc.push('http://localhost:4000', 'http://localhost:5173');
+  }
+  return {
+    contentSecurityPolicy: {
+      directives,
+    },
+    crossOriginEmbedderPolicy: false,
+    // HSTS only for HTTPS production; never emit on local HTTP dev.
+    hsts: config.isProduction
+      ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+      : false,
+  };
+}
 
 export function createApp(pool: Pool, useMemoryStore = false): express.Application {
   const app = express();
 
+  app.use(helmet(buildHelmetOptions()));
   app.use(
     cors({
       origin: config.corsOrigin,
       credentials: true,
     })
   );
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: config.bodyParse.limit }));
+  app.use(express.urlencoded({ extended: true, limit: config.bodyParse.limit }));
 
   let store: session.Store;
   if (useMemoryStore) {
@@ -41,7 +75,7 @@ export function createApp(pool: Pool, useMemoryStore = false): express.Applicati
         httpOnly: true,
         secure: config.isProduction,
         sameSite: 'lax',
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: config.auth.sessionMaxAge,
       },
     })
   );
@@ -50,9 +84,9 @@ export function createApp(pool: Pool, useMemoryStore = false): express.Applicati
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  app.use('/api/auth', authRoutes);
-  app.use('/api/items', itemRoutes);
-  app.use('/api/contact-requests', contactRequestRoutes);
+  app.use('/api/auth', authRateLimiter, authRoutes);
+  app.use('/api/items', reportRateLimiter, itemRoutes);
+  app.use('/api/contact-requests', contactRateLimiter, contactRequestRoutes);
 
   app.use(notFound);
   app.use(errorHandler);
