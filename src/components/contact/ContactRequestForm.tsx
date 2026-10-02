@@ -114,7 +114,7 @@ export const ContactRequestForm = ({ itemId, variant = 'primary', onSuccess }: C
       </ReportFormField>
 
       {error && (
-        <Text color="muted" size="sm" role="alert" className="text-brand">
+        <Text size="sm" role="alert" className="text-brand font-medium">
           {error}
         </Text>
       )}

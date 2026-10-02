@@ -43,10 +43,10 @@ export const ImageUpload = ({
     }
     const validationError = validateFile(file);
     if (validationError) {
-      // We don't set error here; the parent handles error display
-      // But we can signal invalid via onChange with null or let parent validate
+      onChange(null);
+    } else {
+      onChange(file);
     }
-    onChange(file);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

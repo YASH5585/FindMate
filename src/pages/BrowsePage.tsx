@@ -7,6 +7,7 @@ import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
 import { SearchBar } from '@/components/browse/SearchBar';
 import { FilterControls } from '@/components/browse/FilterControls';
 import { SortControl } from '@/components/browse/SortControl';
@@ -42,25 +43,23 @@ export const BrowsePage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const fetchItems = () => {
     setLoading(true);
     setError(null);
     getItems()
       .then((data) => {
-        if (!cancelled) {
-          setItems(data);
-          setLoading(false);
-        }
+        setItems(data);
+        setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) {
-          setItems(mockItems);
-          setError('Could not load items from server; showing demo data.');
-          setLoading(false);
-        }
+        setItems(mockItems);
+        setError('Could not load items from server; showing demo data.');
+        setLoading(false);
       });
-    return () => { cancelled = true; };
+  };
+
+  useEffect(() => {
+    fetchItems();
   }, []);
 
   const hasActiveFilters =
@@ -154,14 +153,19 @@ export const BrowsePage = () => {
           />
         </div>
 
-          <div className="flex items-center justify-between mb-6">
-          <SortControl value={sort} onChange={setSort} />
-        </div>
+          <div className="mb-6">
+            <SortControl value={sort} onChange={setSort} />
+          </div>
 
         {error && (
-          <Text color="muted" size="sm" className="mb-4">
-            {error}
-          </Text>
+          <div role="alert" className="mb-4 p-4 bg-brand/5 border border-brand/20 rounded-card">
+            <Text color="muted" size="sm" className="mb-2 block">
+              {error}
+            </Text>
+            <Button variant="ghost" size="sm" onClick={fetchItems}>
+              Retry
+            </Button>
+          </div>
         )}
 
         {loading ? (

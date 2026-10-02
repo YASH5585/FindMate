@@ -7,6 +7,7 @@ import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { ReportFormField } from '@/components/report/ReportFormField';
 import { Spinner } from '@/components/ui/Spinner';
+import { cn } from '@/lib/utils';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+
+  const passwordMismatch = password !== confirm && confirm.length > 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +29,7 @@ export const RegisterPage = () => {
       await register(name, email, password);
       navigate('/browse');
     } catch {
-      // error surfaced via auth context
+      // error is surfaced via the auth context
     }
   };
 
@@ -43,11 +46,17 @@ export const RegisterPage = () => {
             </Text>
           </div>
 
-          {error && (
-            <Text color="muted" className="mb-4 text-sm" role="alert">
-              {error}
-            </Text>
-          )}
+           {error && (
+             <Text size="sm" role="alert" className="mb-4 text-brand font-medium">
+               {error}
+             </Text>
+           )}
+
+           {passwordMismatch && (
+             <Text size="sm" role="alert" className="mb-4 text-brand font-medium">
+               Passwords do not match.
+             </Text>
+           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <ReportFormField label="Full Name" htmlFor="register-name" required error={undefined}>
@@ -90,7 +99,7 @@ export const RegisterPage = () => {
               />
             </ReportFormField>
 
-            <ReportFormField label="Confirm Password" htmlFor="register-confirm" required error={undefined}>
+            <ReportFormField label="Confirm Password" htmlFor="register-confirm" required error={passwordMismatch ? 'Passwords do not match' : undefined}>
               <input
                 id="register-confirm"
                 type="password"
@@ -99,7 +108,12 @@ export const RegisterPage = () => {
                 minLength={8}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full h-12 px-4 rounded-card border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-brand"
+                className={cn(
+                  'w-full h-12 px-4 rounded-card border border-black/10 bg-white focus:outline-none focus:ring-2 focus:ring-brand',
+                  passwordMismatch && 'border-brand focus:ring-brand'
+                )}
+                aria-invalid={passwordMismatch}
+                aria-describedby={passwordMismatch ? 'register-confirm-error' : undefined}
               />
             </ReportFormField>
 

@@ -182,7 +182,9 @@ export const ContactRequestsPage = () => {
             <Spinner />
           </div>
         ) : error ? (
-          <Text color="muted" className="py-8 text-center">{error}</Text>
+          <div role="alert" className="py-12 text-center">
+            <Text color="muted" className="text-center">{error}</Text>
+          </div>
         ) : requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
             <div className="mb-6">

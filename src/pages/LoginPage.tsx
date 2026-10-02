@@ -39,7 +39,7 @@ export const LoginPage = () => {
           </div>
 
           {error && (
-            <Text color="muted" className="mb-4 text-sm" role="alert">
+            <Text size="sm" role="alert" className="mb-4 text-brand font-medium">
               {error}
             </Text>
           )}

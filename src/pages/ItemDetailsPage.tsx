@@ -8,6 +8,7 @@ import { Container } from '@/components/ui/Container';
 import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Spinner } from '@/components/ui/Spinner';
+import { ApiError } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 import { NotFound } from '@/components/browse/NotFound';
 import { ItemDetailView } from '@/components/browse/ItemDetailView';
@@ -20,6 +21,7 @@ export const ItemDetailsPage = () => {
   const { user } = useAuth();
   const [item, setItem] = useState<Item | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -27,13 +29,18 @@ export const ItemDetailsPage = () => {
       return;
     }
     setLoading(true);
+    setError(null);
     fetchItemById(id)
       .then((data) => {
         setItem(data);
         setLoading(false);
       })
-      .catch(() => {
-        setItem(undefined);
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 404) {
+          setItem(undefined);
+        } else {
+          setError('Could not load this item. Please try again.');
+        }
         setLoading(false);
       });
   }, [id]);
@@ -46,6 +53,19 @@ export const ItemDetailsPage = () => {
       <Container className="py-12">
         <div className="flex justify-center">
           <Spinner />
+        </div>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-12">
+        <div role="alert" className="text-center py-12">
+          <Text color="muted" className="mb-4">{error}</Text>
+          <Button variant="secondary" size="md" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
         </div>
       </Container>
     );

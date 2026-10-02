@@ -13,8 +13,6 @@ export const ReportFoundPage = () => {
   const { user } = useAuth();
 
   const handleSubmit = async (data: ReportFormData): Promise<ReportSubmitResult> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
     const reporterName = user?.name ?? 'Current User';
     const contact = data.contact;
     const newItem = toCreateItemRequest(data, reporterName, 'found', contact);

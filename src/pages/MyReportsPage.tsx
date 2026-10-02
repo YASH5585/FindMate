@@ -17,7 +17,7 @@ export const MyReportsPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchReports = () => {
     if (!user) {
       setLoading(false);
       return;
@@ -39,6 +39,10 @@ export const MyReportsPage = () => {
         }
       });
     return () => { cancelled = true; };
+  };
+
+  useEffect(() => {
+    fetchReports();
   }, [user]);
 
   if (!user) {
@@ -70,7 +74,12 @@ export const MyReportsPage = () => {
             <Spinner />
           </div>
         ) : error ? (
-          <Text color="muted" className="py-12 text-center">{error}</Text>
+          <div role="alert" className="py-12 text-center">
+            <Text color="muted" className="mb-4 block">{error}</Text>
+            <Button variant="ghost" size="sm" onClick={() => fetchReports()}>
+              Retry
+            </Button>
+          </div>
         ) : reports.length === 0 ? (
           <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
             <div className="mb-6">
