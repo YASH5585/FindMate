@@ -74,8 +74,12 @@ export class ApiClient {
       body: JSON.stringify(body),
     });
   }
+
+  getBaseURL(): string {
+    return this.baseURL;
+  }
 }
 
-const API_URL = import.meta.env.VITE_API_URL ?? '';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const apiClient = new ApiClient({ baseURL: API_URL });

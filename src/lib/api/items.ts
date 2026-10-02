@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, ApiError } from './client';
 import type { Item, ItemCategory, ItemStatus } from '@/types/item';
 import type { ReportFormData } from '@/types/report';
 
@@ -25,6 +25,10 @@ export interface ItemFilters {
   offset?: number;
 }
 
+export interface UploadResponse {
+  url: string;
+}
+
 export async function getItems(filters?: ItemFilters): Promise<Item[]> {
   const params = new URLSearchParams();
   if (filters) {
@@ -47,6 +51,34 @@ export async function createItem(data: CreateItemRequest): Promise<Item> {
   return apiClient.post<Item>('/items', data);
 }
 
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('image', file);
+
+  const response = await fetch(`${apiClient.getBaseURL()}/upload/image`, {
+    method: 'POST',
+    credentials: 'include',
+    body: form,
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Upload failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      errorMessage =
+        (errorBody as { message?: string; error?: string }).message ??
+        (errorBody as { message?: string; error?: string }).error ??
+        errorMessage;
+    } catch {
+      // ignore non-JSON error bodies
+    }
+    throw new ApiError(errorMessage, response.status);
+  }
+
+  const result = (await response.json()) as UploadResponse;
+  return result.url;
+}
+
 export async function getReportsForUser(_userIdentifier: string): Promise<Item[]> {
   return getMyReports();
 }
@@ -55,8 +87,13 @@ export async function getMyReports(): Promise<Item[]> {
   return apiClient.get<Item[]>('/items/mine');
 }
 
-export function toCreateItemRequest(formData: ReportFormData, reporterName: string, status: ItemStatus, contact: string): CreateItemRequest {
-  const image = formData.imagePreview ?? null;
+export function toCreateItemRequest(
+  formData: ReportFormData,
+  reporterName: string,
+  status: ItemStatus,
+  contact: string,
+  imageUrl: string | null = null
+): CreateItemRequest {
   return {
     name: formData.name,
     status,
@@ -64,7 +101,7 @@ export function toCreateItemRequest(formData: ReportFormData, reporterName: stri
     description: formData.description,
     location: formData.location,
     date: formData.date,
-    image,
+    image: imageUrl,
     reporterName,
     contact,
   };

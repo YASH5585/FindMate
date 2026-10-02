@@ -1,12 +1,11 @@
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/ui/Container';
-import { Heading } from '@/components/ui/Typography';
-import { Text } from '@/components/ui/Typography';
+import { Heading, Text } from '@/components/ui/Typography';
 import { ReportForm } from '@/components/report/ReportForm';
 import { LoginPrompt } from '@/components/auth/LoginPrompt';
 import { useAuth } from '@/hooks/useAuth';
 import type { ReportFormData, ReportSubmitResult } from '@/types/report';
-import { createItem, toCreateItemRequest } from '@/lib/api/items';
+import { createItem, toCreateItemRequest, uploadImage } from '@/lib/api/items';
 import { ApiError } from '@/lib/api/client';
 
 export const ReportLostPage = () => {
@@ -15,7 +14,21 @@ export const ReportLostPage = () => {
   const handleSubmit = async (data: ReportFormData): Promise<ReportSubmitResult> => {
     const reporterName = user?.name ?? 'Current User';
     const contact = data.contact;
-    const newItem = toCreateItemRequest(data, reporterName, 'lost', contact);
+    let imageUrl: string | null = null;
+
+    if (data.image) {
+      try {
+        imageUrl = await uploadImage(data.image);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 501) {
+          return { success: false, error: 'Image uploads are not configured.' };
+        }
+        const message = err instanceof Error ? err.message : 'Could not upload image.';
+        return { success: false, error: message };
+      }
+    }
+
+    const newItem = toCreateItemRequest(data, reporterName, 'lost', contact, imageUrl);
 
     try {
       const saved = await createItem(newItem);

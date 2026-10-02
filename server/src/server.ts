@@ -27,10 +27,42 @@ async function startServer(): Promise<void> {
 
   const appInstance = createApp(getPool());
 
-  appInstance.listen(config.port, () => {
+  const server = appInstance.listen(config.port, () => {
     console.log(`FindMate API listening on port ${config.port}`);
     console.log(`CORS origin: ${config.corsOrigin}`);
     console.log(`Environment: ${config.nodeEnv}`);
+  });
+
+  const shutdown = async (signal: string): Promise<void> => {
+    console.log(`${signal} received, shutting down gracefully...`);
+    server.close(async (err) => {
+      if (err) {
+        console.error('Error during server shutdown:', err);
+        process.exit(1);
+      }
+      try {
+        await getPool().end();
+        console.log('Database pool closed.');
+      } catch (e) {
+        console.error('Error closing database pool:', e);
+      }
+      process.exit(0);
+    });
+    setTimeout(() => {
+      console.error('Force closing after timeout.');
+      process.exit(1);
+    }, 30000).unref();
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+
+  server.on('error', (err: Error) => {
+    if ((err as NodeJS.ErrnoException).code === 'EADDRINUSE') {
+      console.error(`Port ${config.port} is already in use.`);
+      process.exit(1);
+    }
+    throw err;
   });
 }
 
