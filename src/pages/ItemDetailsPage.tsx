@@ -2,18 +2,18 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Item } from '@/types/item';
 import { getItemById as fetchItemById } from '@/lib/api/items';
+import { ApiError } from '@/lib/api/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
-import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Spinner } from '@/components/ui/Spinner';
-import { ApiError } from '@/lib/api/client';
 import { cn } from '@/lib/utils';
 import { NotFound } from '@/components/browse/NotFound';
 import { ItemDetailView } from '@/components/browse/ItemDetailView';
 import { LoginPrompt } from '@/components/auth/LoginPrompt';
 import { ContactRequestForm } from '@/components/contact/ContactRequestForm';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export const ItemDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,9 +50,9 @@ export const ItemDetailsPage = () => {
 
   if (loading || !id) {
     return (
-      <Container className="py-12">
+      <Container className="py-12 sm:py-16 md:py-24">
         <div className="flex justify-center">
-          <Spinner />
+          <Spinner size="lg" />
         </div>
       </Container>
     );
@@ -60,10 +60,10 @@ export const ItemDetailsPage = () => {
 
   if (error) {
     return (
-      <Container className="py-12">
+      <Container className="py-12 sm:py-16 md:py-24">
         <div role="alert" className="text-center py-12">
-          <Text color="muted" className="mb-4">{error}</Text>
-          <Button variant="secondary" size="md" onClick={() => navigate(-1)}>
+          <Text color="muted" className="mb-4 block">{error}</Text>
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
             Go Back
           </Button>
         </div>
@@ -73,7 +73,7 @@ export const ItemDetailsPage = () => {
 
   if (!item) {
     return (
-      <Container className="py-12">
+      <Container className="py-12 sm:py-16 md:py-24">
         <NotFound
           title="Item not found"
           description="The item you're looking for doesn't exist or has been removed."
@@ -86,13 +86,13 @@ export const ItemDetailsPage = () => {
 
   return (
     <article className="w-full">
-      <header className="border-b border-black/10 py-6 mb-8">
+      <header className="border-b border-border py-4 sm:py-6 mb-8">
         <Container>
           <button
             type="button"
             onClick={() => navigate(-1)}
             className={cn(
-              'inline-flex items-center gap-2 text-sm font-medium text-black/70',
+              'inline-flex items-center gap-2 text-sm font-medium text-text-secondary',
               'hover:text-brand focus-visible:text-brand',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
               'transition-colors'
@@ -119,15 +119,18 @@ export const ItemDetailsPage = () => {
 
       <ItemDetailView item={item} />
 
-      <footer className="border-t border-black/10 py-6 mt-12">
+      <footer className="border-t border-border py-8 sm:py-12 mt-12 sm:mt-16">
         <Container>
           <div className="max-w-2xl">
             {!user ? (
               <div>
-                <Heading level={3} size="h4" className="mb-3">
-                  Want to get in touch?
-                </Heading>
-                <Text color="muted" className="mb-4 max-w-sm">
+                <div className="mb-6">
+                  <StatusBadge status={item.status} size="md" />
+                  <Text weight="semibold" className="mt-2 block text-xl">
+                    Want to get in touch?
+                  </Text>
+                </div>
+                <Text color="muted" className="mb-6 max-w-md">
                   Sign in to send a secure message to {item.reporterName}. Your contact
                   details stay private.
                 </Text>
@@ -149,9 +152,9 @@ export const ItemDetailsPage = () => {
             ) : (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <Heading level={3} size="h4" className="mb-0">
+                  <Text weight="semibold" size="lg">
                     {contactActionLabel}
-                  </Heading>
+                  </Text>
                   <Link to="/report-found">
                     <Button variant="secondary" size="md" className="sm:ml-auto">
                       Report a Found Item

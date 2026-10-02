@@ -1,31 +1,32 @@
 import { Link } from 'react-router-dom';
 import { Section } from '@/components/layout/Section';
 import { Container } from '@/components/ui/Container';
+import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
-import { ItemCard } from './ItemCard';
-import { mockItems } from '@/data/landing';
+import { ItemGrid } from '@/components/browse/ItemGrid';
+import { mockItems } from '@/data/mockItems';
 
 export const RecentItems = () => (
-  <Section id="recently-reported" className="py-16 md:py-24 bg-white">
+  <Section id="recently-reported" className="bg-white">
     <Container>
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 md:mb-16">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8">
         <div>
-          <Text size="sm" color="muted" className="mb-3 tracking-widest uppercase">
+          <Text size="sm" color="muted" className="mb-2 tracking-widest uppercase text-brand font-semibold">
             RECENTLY REPORTED
           </Text>
+          <Heading level={2} size="h2" weight="extrabold">
+            Items reported across campus
+          </Heading>
         </div>
         <Link to="/browse">
-          <Button variant="ghost" size="sm" className="md:ml-auto">
+          <Button variant="ghost" size="sm">
             View All Reports
           </Button>
         </Link>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {mockItems.map((item) => (
-          <ItemCard key={item.id} item={item} />
-        ))}
-      </div>
+
+      <ItemGrid items={mockItems} />
     </Container>
   </Section>
 );

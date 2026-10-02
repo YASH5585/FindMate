@@ -10,7 +10,7 @@ interface ErrorStateProps {
 }
 
 export const ErrorState = ({ message = 'Something went wrong', onRetry, className }: ErrorStateProps) => (
-  <div className={cn('flex flex-col items-center justify-center py-16 md:py-24 text-center', className)}>
+  <div className={cn('flex flex-col items-center justify-center py-16 md:py-24 text-center', className)} role="alert">
     <div className="mb-6">
       <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-grey-light">
         <circle cx="12" cy="12" r="10" />

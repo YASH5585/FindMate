@@ -6,10 +6,10 @@ import { ReportFormField } from '@/components/report/ReportFormField';
 import { Spinner } from '@/components/ui/Spinner';
 import { Text } from '@/components/ui/Typography';
 import { ApiError } from '@/lib/api/client';
+import { cn } from '@/lib/utils';
+import type { ButtonVariant } from '@/components/ui/Button';
 
 const MESSAGE_MAX = 2000;
-
-import type { ButtonVariant } from '@/components/ui/Button';
 
 interface ContactRequestFormProps {
   itemId: string;
@@ -60,8 +60,12 @@ export const ContactRequestForm = ({ itemId, variant = 'primary', onSuccess }: C
   if (submitted) {
     return (
       <div
-        className="rounded-card bg-surface-subtle border border-black/10 p-6 text-center"
+        className={cn(
+          'rounded-card bg-found-bg border border-found-border p-6 sm:p-8 text-center',
+          'transition-all duration-300 ease-out'
+        )}
         aria-live="polite"
+        role="status"
       >
         <div className="flex justify-center mb-4">
           <svg
@@ -73,14 +77,16 @@ export const ContactRequestForm = ({ itemId, variant = 'primary', onSuccess }: C
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-brand"
+            className="text-found"
             aria-hidden="true"
           >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
-        <Text weight="semibold">Your message has been sent.</Text>
+        <Text weight="semibold" className="text-lg text-text-primary">
+          Your message has been sent.
+        </Text>
         <Text color="muted" size="sm" className="mt-1">
           The owner will be notified and can respond through your contact requests.
         </Text>
@@ -108,7 +114,13 @@ export const ContactRequestForm = ({ itemId, variant = 'primary', onSuccess }: C
           rows={4}
           maxLength={MESSAGE_MAX + 50}
           disabled={loading}
-          className="w-full px-4 py-3 rounded-card border border-black/10 bg-white resize-y min-h-[100px] focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50"
+          className={cn(
+            'w-full px-4 py-3 rounded-card border border-border bg-surface-card',
+            'focus:outline-none focus:ring-2 focus:ring-brand',
+            'placeholder:text-text-disabled',
+            'resize-y min-h-[100px] disabled:opacity-50',
+            'transition-colors duration-150 ease-out'
+          )}
           aria-label="Message to send to the item owner"
         />
       </ReportFormField>

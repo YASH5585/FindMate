@@ -23,7 +23,7 @@ export const ReportFormField = ({
     <label
       htmlFor={htmlFor}
       className={cn(
-        'block text-sm font-medium text-black mb-2',
+        'block text-sm font-medium text-text-primary mb-2',
         required && 'after:content-["*"] after:ml-0.5 after:text-brand'
       )}
     >
@@ -33,14 +33,14 @@ export const ReportFormField = ({
     {error && (
       <p
         id={`${htmlFor}-error`}
-        className="mt-1.5 text-sm text-brand"
+        className="mt-1.5 text-sm text-brand font-medium"
         role="alert"
       >
         {error}
       </p>
     )}
     {hint && !error && (
-      <p id={`${htmlFor}-hint`} className="mt-1.5 text-sm text-grey">
+      <p id={`${htmlFor}-hint`} className="mt-1.5 text-sm text-text-muted">
         {hint}
       </p>
     )}

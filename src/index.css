@@ -1,23 +1,58 @@
 @import "tailwindcss";
 
 @theme {
+  /* ===== COLOR SYSTEM ===== */
   --color-white: #ffffff;
-  --color-black: #000000;
-  --color-brand: #00204f;
-  --color-brand-secondary: #27397a;
+  --color-black: #0b1f33;
+  --color-brand: #1769ff;
+  --color-brand-dark: #0f4aa9;
+  --color-brand-hover: #1459dd;
+  --color-found: #16a34a;
+  --color-found-bg: #dcfce7;
+  --color-found-border: #86efac;
+  --color-lost: #f97316;
+  --color-lost-bg: #ffedd5;
+  --color-lost-border: #fca5a2;
+  --color-text-primary: #101828;
+  --color-text-secondary: #49556b;
+  --color-text-muted: #667085;
+  --color-text-disabled: #94a3b8;
+  --color-surface: #f7f8fa;
+  --color-surface-subtle: #eef0f4;
+  --color-surface-card: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
   --color-accent: #ff0072;
-  --color-grey: #606060;
-  --color-grey-medium: #909090;
-  --color-grey-light: #c0c0c0;
-  --color-surface-subtle: #f0f0f0;
+  --color-accent-bg: #ffe4f0;
+  --color-accent-border: #fb7da0;
 
+  /* ===== TYPOGRAPHY ===== */
   --font-family-display: 'Inter', ui-sans, system-ui, sans-serif;
-  --font-family-sans: 'DM Sans', ui-sans, system-ui, sans-serif;
+  --font-family-sans: 'DM Sans', 'Inter', ui-sans, system-ui, sans-serif;
 
+  /* ===== BORDER RADIUS ===== */
   --radius-card: 1.25rem;
-  --radius-sm: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-full: 9999px;
+
+  /* ===== SPACING SCALE ===== */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+
+  /* ===== SHADOWS ===== */
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 4px 6px rgba(15, 23, 42, 0.08), 0 1px 4px rgba(15, 23, 42, 0.04);
+  --shadow-strong: 0 10px 25px rgba(15, 23, 42, 0.10);
 }
 
+/* ===== BASE STYLES ===== */
 @layer base {
   #root {
     @apply min-h-svh flex flex-col;
@@ -26,7 +61,7 @@
     @apply scroll-smooth;
   }
   body {
-    @apply m-0 bg-white text-black font-sans antialiased;
+    @apply m-0 bg-surface text-text-primary font-sans antialiased;
   }
   :focus-visible {
     @apply outline-2 outline-solid outline-brand outline-offset-2;
@@ -38,5 +73,24 @@
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-brand/5 {
+    background-color: rgba(23, 105, 255, 0.05);
+  }
+  .bg-brand/10 {
+    background-color: rgba(23, 105, 255, 0.10);
+  }
+  .bg-brand/90 {
+    background-color: rgba(23, 105, 255, 0.90);
+  }
+  .bg-accent/10 {
+    background-color: rgba(255, 0, 114, 0.10);
   }
 }

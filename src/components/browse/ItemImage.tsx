@@ -11,7 +11,7 @@ export const ItemImage = ({ src, alt, className }: ItemImageProps) => {
     return (
       <div
         className={cn(
-          'w-full h-full flex items-center justify-center bg-surface-subtle text-grey-light',
+          'w-full h-full flex items-center justify-center bg-surface-subtle text-text-disabled',
           className
         )}
         aria-label="No image available"

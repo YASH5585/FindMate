@@ -9,7 +9,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState = ({ onClearFilters, className }: EmptyStateProps) => (
-  <div className={cn('flex flex-col items-center justify-center py-16 md:py-24 text-center', className)}>
+  <div className={cn('flex flex-col items-center justify-center text-center py-16 md:py-24', className)}>
     <div className="mb-6">
       <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-grey-light">
         <circle cx="11" cy="11" r="8" />

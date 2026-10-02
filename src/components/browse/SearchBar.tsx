@@ -35,12 +35,12 @@ export const SearchBar = ({
   };
 
   return (
-    <div className={cn('relative w-full', isFocused && 'ring-2 ring-brand ring-offset-2')}>
+    <div className={cn('relative w-full', isFocused && 'ring-2 ring-brand ring-offset-2 rounded-card')}>
       <label htmlFor="search-input" className="sr-only">
         Search items
       </label>
       <svg
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-grey transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted transition-colors"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
@@ -64,8 +64,8 @@ export const SearchBar = ({
         placeholder={placeholder}
         className={cn(
           'w-full pl-12 pr-12 py-3 text-base',
-          'bg-white border border-black/10 rounded-card',
-          'placeholder:text-grey-medium',
+          'bg-surface-card border border-border rounded-card',
+          'placeholder:text-text-disabled',
           'focus:outline-none focus:border-brand',
           'transition-colors duration-150 ease-out'
         )}
@@ -74,7 +74,7 @@ export const SearchBar = ({
         <button
           type="button"
           onClick={onClear}
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md text-grey-medium hover:text-black hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 transition-colors"
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 transition-colors"
           aria-label="Clear search"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

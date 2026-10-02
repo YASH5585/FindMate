@@ -69,7 +69,7 @@ export const BrowsePage = () => {
     date !== 'all' ||
     searchQuery !== '';
 
-   const filtered = useMemo(() => {
+  const filtered = useMemo(() => {
     const query = normalize(searchQuery);
 
     return items.filter((item: Item) => {
@@ -92,13 +92,13 @@ export const BrowsePage = () => {
   }, [items, searchQuery, status, category, locationFilter, date]);
 
   const sorted = useMemo(() => {
-    const items = [...filtered];
-    items.sort((a, b) => {
+    const itemsCopy = [...filtered];
+    itemsCopy.sort((a, b) => {
       const aTime = dateToNumber(a.date);
       const bTime = dateToNumber(b.date);
       return sort === 'newest' ? bTime - aTime : aTime - bTime;
     });
-    return items;
+    return itemsCopy;
   }, [filtered, sort]);
 
   const handleClearFilters = () => {
@@ -122,12 +122,12 @@ export const BrowsePage = () => {
 
   return (
     <div className="w-full">
-      <header className="mb-8">
+      <header className="border-b border-border mb-8 sm:mb-12">
         <Container>
           <Heading level={1} size="h1" className="mb-2">
-            Browse Lost & Found
+            Browse Lost &amp; Found
           </Heading>
-          <Text color="muted">
+          <Text color="muted" size="sm">
             {sorted.length} item{sorted.length !== 1 ? 's' : ''} found
           </Text>
         </Container>
@@ -153,9 +153,9 @@ export const BrowsePage = () => {
           />
         </div>
 
-          <div className="mb-6">
-            <SortControl value={sort} onChange={setSort} />
-          </div>
+        <div className="mb-6">
+          <SortControl value={sort} onChange={setSort} />
+        </div>
 
         {error && (
           <div role="alert" className="mb-4 p-4 bg-brand/5 border border-brand/20 rounded-card">
@@ -170,7 +170,7 @@ export const BrowsePage = () => {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <Spinner />
+            <Spinner size="lg" />
           </div>
         ) : sorted.length === 0 ? (
           <EmptyState onClearFilters={handleClearFilters} />

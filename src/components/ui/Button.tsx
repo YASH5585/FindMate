@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 export type ButtonVariant = 'primary' | 'pink' | 'secondary' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-const base = 'inline-flex items-center justify-center gap-2 rounded-card font-medium outline-none transition-colors duration-150 ease-out disabled:pointer-events-none disabled:opacity-50';
+const base = 'inline-flex items-center justify-center gap-2 rounded-card font-medium outline-none transition-all duration-150 ease-out disabled:pointer-events-none disabled:opacity-50';
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-brand text-white hover:bg-brand/90 active:bg-brand/80',
-  pink: 'bg-accent text-white hover:bg-accent/90 active:bg-accent/80',
-  secondary: 'bg-white text-black border border-black/10 hover:bg-surface-subtle active:bg-grey-light/40',
+  primary: 'bg-brand text-white hover:bg-brand/90 active:bg-brand/80 shadow-card hover:shadow-card-hover',
+  pink: 'bg-accent text-white hover:bg-accent/90 active:bg-accent/80 shadow-card hover:shadow-card-hover',
+  secondary: 'bg-white text-black border border-border hover:bg-surface-subtle active:bg-grey-light/40',
   ghost: 'text-brand hover:bg-brand/5 active:bg-brand/10',
 };
 const sizeStyles: Record<ButtonSize, string> = {

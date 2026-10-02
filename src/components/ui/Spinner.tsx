@@ -15,7 +15,7 @@ export const Spinner = ({ size = 'md', className, 'aria-label': ariaLabel = 'Loa
 
   return (
     <svg
-      className={cn('animate-spin text-grey-light', sizeClasses[size], className)}
+      className={cn('animate-spin text-text-muted', sizeClasses[size], className)}
       viewBox="0 0 24 24"
       fill="none"
       aria-label={ariaLabel}

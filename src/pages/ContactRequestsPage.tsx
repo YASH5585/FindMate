@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import type { ContactRequest, ContactRequestStatus } from '@/types/contactRequest';
-import {
-  getContactRequests,
-  updateContactRequest,
-} from '@/lib/api/contactRequests';
+import { getContactRequests, updateContactRequest } from '@/lib/api/contactRequests';
 import { ApiError } from '@/lib/api/client';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/ui/Container';
@@ -13,12 +10,13 @@ import { Heading } from '@/components/ui/Typography';
 import { Text } from '@/components/ui/Typography';
 import { Spinner } from '@/components/ui/Spinner';
 import { LoginPrompt } from '@/components/auth/LoginPrompt';
+import { Badge } from '@/components/ui/Badge';
 
 const statusColors: Record<ContactRequestStatus, string> = {
-  pending: 'bg-brand/10 text-brand',
-  accepted: 'bg-accent/10 text-accent',
-  declined: 'text-grey-medium',
-  closed: 'text-grey-medium',
+  pending: 'bg-lost-bg text-lost border-lost-border',
+  accepted: 'bg-found-bg text-found border-found-border',
+  declined: 'bg-surface-subtle text-text-muted border',
+  closed: 'bg-surface-subtle text-text-muted border',
 };
 
 const statusLabels: Record<ContactRequestStatus, string> = {
@@ -71,8 +69,12 @@ export const ContactRequestsPage = () => {
         prev.map((r) => (r.id === id ? updated : r))
       );
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Could not update request.';
-      setError(msg);
+      if (err instanceof ApiError && err.status === 404) {
+        setError('This request no longer exists.');
+      } else {
+        const msg = err instanceof Error ? err.message : 'Could not update request.';
+        setError(msg);
+      }
     } finally {
       setUpdatingId(null);
     }
@@ -80,9 +82,9 @@ export const ContactRequestsPage = () => {
 
   if (authLoading) {
     return (
-      <Container className="py-12">
+      <Container className="py-12 sm:py-16 md:py-24">
         <div className="flex justify-center">
-          <Spinner />
+          <Spinner size="lg" />
         </div>
       </Container>
     );
@@ -102,22 +104,24 @@ export const ContactRequestsPage = () => {
   const outgoing = requests.filter((r) => r.role === 'sender');
 
   const IncomingCard = ({ r }: { r: ContactRequest }) => (
-    <div className="rounded-card border border-black/10 bg-white p-4">
+    <div className="rounded-card border border-border bg-surface-card p-4 sm:p-5 transition-all duration-200 hover:shadow-card">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <Text weight="medium">{r.itemName ?? 'Item'}</Text>
-          <Text color="muted" size="sm">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="neutral" size="sm">
+              {r.itemName ?? 'Item'}
+            </Badge>
+            <span className={`text-xs font-mono font-bold tracking-widest uppercase rounded-full px-2 py-0.5 border ${statusColors[r.status]}`}>
+              {statusLabels[r.status]}
+            </span>
+          </div>
+          <Text color="muted" size="sm" className="mb-2">
             From {r.senderName ?? 'Someone'} · {formatDate(r.createdAt)}
           </Text>
-          <Text size="sm" className="mt-2 line-clamp-2">
+          <Text size="sm" className="line-clamp-2">
             {r.message}
           </Text>
         </div>
-        <span
-          className={`ml-auto px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[r.status]}`}
-        >
-          {statusLabels[r.status]}
-        </span>
       </div>
       {r.status === 'pending' && (
         <div className="mt-4 flex gap-2">
@@ -126,6 +130,7 @@ export const ContactRequestsPage = () => {
             size="sm"
             disabled={updatingId === r.id}
             onClick={() => handleUpdate(r.id, 'accepted')}
+            className="flex-1 sm:flex-none"
           >
             {updatingId === r.id ? <Spinner size="sm" /> : 'Accept'}
           </Button>
@@ -134,6 +139,7 @@ export const ContactRequestsPage = () => {
             size="sm"
             disabled={updatingId === r.id}
             onClick={() => handleUpdate(r.id, 'declined')}
+            className="flex-1 sm:flex-none"
           >
             {updatingId === r.id ? <Spinner size="sm" /> : 'Decline'}
           </Button>
@@ -143,29 +149,31 @@ export const ContactRequestsPage = () => {
   );
 
   const OutgoingCard = ({ r }: { r: ContactRequest }) => (
-    <div className="rounded-card border border-black/10 bg-white p-4">
+    <div className="rounded-card border border-border bg-surface-card p-4 sm:p-5 transition-all duration-200 hover:shadow-card">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <Text weight="medium">{r.itemName ?? 'Item'}</Text>
-          <Text color="muted" size="sm">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="neutral" size="sm">
+              {r.itemName ?? 'Item'}
+            </Badge>
+            <span className={`text-xs font-mono font-bold tracking-widest uppercase rounded-full px-2 py-0.5 border ${statusColors[r.status]}`}>
+              {statusLabels[r.status]}
+            </span>
+          </div>
+          <Text color="muted" size="sm" className="mb-2">
             To {r.receiverName ?? 'the owner'} · {formatDate(r.createdAt)}
           </Text>
-          <Text size="sm" className="mt-2 line-clamp-2">
+          <Text size="sm" className="line-clamp-2">
             {r.message}
           </Text>
         </div>
-        <span
-          className={`ml-auto px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[r.status]}`}
-        >
-          {statusLabels[r.status]}
-        </span>
       </div>
     </div>
   );
 
   return (
     <div className="w-full py-8">
-      <header className="border-b border-black/10 mb-8">
+      <header className="border-b border-border mb-8">
         <Container>
           <Heading level={1} size="h1" className="mb-1">
             Contact Requests
@@ -179,14 +187,14 @@ export const ContactRequestsPage = () => {
       <Container>
         {loading ? (
           <div className="flex justify-center py-12">
-            <Spinner />
+            <Spinner size="lg" />
           </div>
         ) : error ? (
           <div role="alert" className="py-12 text-center">
-            <Text color="muted" className="text-center">{error}</Text>
+            <Text color="muted" className="mb-4 block">{error}</Text>
           </div>
         ) : requests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center py-16 md:py-24">
+          <div className="flex flex-col items-center justify-center text-center py-16 sm:py-20 md:py-24">
             <div className="mb-6">
               <svg
                 width="80"

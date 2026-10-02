@@ -3,13 +3,13 @@ import type { ComponentProps } from 'react';
 import { cn } from '@/lib/utils';
 
 const headingSizes = {
-  display: 'text-5xl md:text-6xl',
-  h1: 'text-4xl',
-  h2: 'text-3xl',
-  h3: 'text-2xl',
-  h4: 'text-xl',
-  h5: 'text-lg',
-  h6: 'text-base',
+  display: 'text-4xl sm:text-5xl md:text-6xl',
+  h1: 'text-3xl sm:text-4xl md:text-5xl',
+  h2: 'text-2xl sm:text-3xl md:text-4xl',
+  h3: 'text-xl sm:text-2xl md:text-3xl',
+  h4: 'text-lg sm:text-xl md:text-2xl',
+  h5: 'text-base sm:text-lg',
+  h6: 'text-sm sm:text-base',
 } as const;
 
 const weights = {
@@ -41,7 +41,7 @@ export const Heading = ({
     Tag,
     {
       className: cn(
-        'font-display font-bold leading-tight tracking-tight text-black',
+        'font-display font-bold text-black tracking-tight',
         headingSizes[sizeKey],
         weights[weight],
         className,
@@ -51,9 +51,28 @@ export const Heading = ({
   );
 };
 
-const textSizes = { sm: 'text-sm', base: 'text-base', lg: 'text-lg', xl: 'text-xl', caption: 'text-sm' } as const;
-const textWeights = { regular: 'font-normal', medium: 'font-medium', semibold: 'font-semibold' } as const;
-const textColors = { default: 'text-black', muted: 'text-grey', disabled: 'text-grey-medium' } as const;
+const textSizes = {
+  xs: 'text-xs',
+  sm: 'text-sm',
+  base: 'text-base',
+  lg: 'text-lg',
+  xl: 'text-xl',
+  caption: 'text-sm',
+} as const;
+const textWeights = {
+  regular: 'font-normal',
+  medium: 'font-medium',
+  semibold: 'font-semibold',
+} as const;
+const textColors = {
+  default: 'text-text-primary',
+  muted: 'text-text-muted',
+  secondary: 'text-text-secondary',
+  disabled: 'text-text-disabled',
+  brand: 'text-brand',
+  lost: 'text-lost',
+  found: 'text-found',
+} as const;
 
 export interface TextProps extends ComponentProps<'p'> {
   size?: keyof typeof textSizes;

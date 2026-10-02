@@ -1,91 +1,76 @@
 import type { Item } from '@/types/item';
 import { Container } from '@/components/ui/Container';
-import { Heading } from '@/components/ui/Typography';
-import { Text } from '@/components/ui/Typography';
-import { cn } from '@/lib/utils';
+import { Heading, Text } from '@/components/ui/Typography';
 import { categoryLabels, locationLabels } from '@/lib/labels';
 import { ItemImage } from '@/components/browse/ItemImage';
-
-const statusStyles = {
-  lost: 'bg-brand/10 text-brand border-brand/20',
-  found: 'bg-accent/10 text-accent border-accent/20',
-} as const;
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Badge } from '@/components/ui/Badge';
 
 interface ItemDetailViewProps {
   item: Item;
 }
 
 export const ItemDetailView = ({ item }: ItemDetailViewProps) => {
-  const statusStyle = statusStyles[item.status];
-
   return (
     <Container>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
         <div className="lg:col-span-2">
-          <div className="relative aspect-[4/3] rounded-card overflow-hidden bg-surface-subtle">
+          <div className="relative aspect-[4/3] rounded-card overflow-hidden bg-surface-subtle border border-border">
             <ItemImage src={item.image} alt={item.name} />
-            <div
-              className={cn(
-                'absolute top-4 right-4 px-3 py-1 text-xs font-semibold rounded-full border',
-                statusStyle
-              )}
-              aria-label={item.status === 'lost' ? 'Status: Lost' : 'Status: Found'}
-            >
-              {item.status === 'lost' ? 'LOST' : 'FOUND'}
+            <div className="absolute top-4 left-4 z-10">
+              <StatusBadge status={item.status} size="md" />
             </div>
           </div>
         </div>
 
         <div className="lg:col-span-3">
-          <Heading level={1} size="h2" className="mb-2">
-            {item.name}
-          </Heading>
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <Heading level={1} size="h2" className="text-wrap">
+              {item.name}
+            </Heading>
+            <Badge variant="neutral" size="md">
+              {categoryLabels[item.category] ?? item.category}
+            </Badge>
+          </div>
 
           <Text color="muted" size="sm" className="mb-6">
-            Reported by {item.reporterName} on {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            Reported by {item.reporterName} on{' '}
+            {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </Text>
 
-          <div className="space-y-4 mb-8">
-            <div>
-              <Text size="sm" color="muted" className="uppercase tracking-widest">
-                Category
-              </Text>
-              <Text weight="medium">{categoryLabels[item.category] ?? item.category}</Text>
-            </div>
-
-            <div>
-              <Text size="sm" color="muted" className="uppercase tracking-widest">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <div className="space-y-1">
+              <Text size="xs" color="muted" className="uppercase tracking-widest">
                 Location
               </Text>
               <Text weight="medium">{locationLabels[item.location] ?? item.location}</Text>
             </div>
-
-            <div>
-              <Text size="sm" color="muted" className="uppercase tracking-widest">
-                Date
+            <div className="space-y-1">
+              <Text size="xs" color="muted" className="uppercase tracking-widest">
+                Date Reported
               </Text>
               <Text weight="medium">
                 {new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
               </Text>
             </div>
-
-            {item.image && (
-              <div>
-                <Text size="sm" color="muted" className="uppercase tracking-widest">
-                  Image
-                </Text>
-                <Text weight="medium" size="sm">
-                  {item.image}
-                </Text>
-              </div>
-            )}
           </div>
 
-          <div className="border-t border-black/10 pt-6">
-            <Heading level={3} size="h4" className="mb-3">
+          {item.image && (
+            <div className="mb-8 space-y-1">
+              <Text size="xs" color="muted" className="uppercase tracking-widest">
+                Image
+              </Text>
+              <Text weight="medium" size="sm" className="break-all">
+                {item.image}
+              </Text>
+            </div>
+          )}
+
+          <div className="border-t border-border pt-6">
+            <Heading level={3} size="h3" className="mb-4">
               Description
             </Heading>
-            <Text className="leading-relaxed">{item.description}</Text>
+            <Text className="leading-relaxed max-w-2xl">{item.description}</Text>
           </div>
         </div>
       </div>
