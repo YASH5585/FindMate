@@ -81,10 +81,17 @@ describe('ApiClient', () => {
     expect((caught as ApiError).status).toBe(409);
   });
 
-  it('returns text for non-JSON responses', async () => {
+  it('throws ApiError for non-JSON responses', async () => {
     mockFetch.mockResolvedValueOnce(mockResponse(200, 'plain text', {}));
-    const result = await client.get('/text');
-    expect(result).toBe('plain text');
+    let caught: unknown;
+    try {
+      await client.get('/text');
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(ApiError);
+    expect((caught as ApiError).status).toBe(200);
+    expect((caught as ApiError).message).toContain('Expected JSON response');
   });
 
   it('strips trailing slash from baseURL', () => {

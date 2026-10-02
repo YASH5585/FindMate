@@ -48,10 +48,13 @@ export class ApiClient {
     }
 
     const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-      return (await response.json()) as T;
+    if (!contentType.includes('application/json')) {
+      throw new ApiError(
+        `Expected JSON response but received ${contentType || 'no content-type'}`,
+        response.status
+      );
     }
-    return (await response.text()) as unknown as T;
+    return (await response.json()) as T;
   }
 
   async get<T>(path: string): Promise<T> {
